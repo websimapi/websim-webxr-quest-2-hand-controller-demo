@@ -91,9 +91,12 @@ export class WebXRManager {
     this.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
     this.raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
 
-    // Get scene manager from the scene (assuming it's attached)
+    // Get scene manager from the scene
     const sceneManager = this.scene.userData.sceneManager;
-    if (!sceneManager) return;
+    if (!sceneManager) {
+      console.warn('Scene manager not found - interactive objects unavailable');
+      return;
+    }
 
     const interactiveObjects = sceneManager.getInteractiveObjects();
     const intersects = this.raycaster.intersectObjects(interactiveObjects);
@@ -109,6 +112,11 @@ export class WebXRManager {
 
       if (isSelecting) {
         console.log('Selected object:', intersected.userData.type);
+        // Add some visual feedback for selection
+        intersected.scale.setScalar(1.2);
+        setTimeout(() => {
+          intersected.scale.setScalar(1.0);
+        }, 200);
       }
     }
   }
@@ -126,6 +134,22 @@ export class WebXRManager {
   detectGestures(inputSource, hand) {
     if (this.isPinched(hand)) {
       console.log(`${inputSource.handedness} pinch gesture detected`);
+      // Handle pinch gesture on objects
+      const sceneManager = this.scene.userData.sceneManager;
+      if (sceneManager) {
+        const handPosition = new THREE.Vector3();
+        hand.getWorldPosition(handPosition);
+        
+        // Check if pinching near any interactive objects
+        const interactiveObjects = sceneManager.getInteractiveObjects();
+        interactiveObjects.forEach(obj => {
+          const distance = handPosition.distanceTo(obj.position);
+          if (distance < 0.3) {
+            console.log(`Pinch interaction with ${obj.userData.type}`);
+            obj.rotation.y += 0.1;
+          }
+        });
+      }
       return 'pinch';
     }
     return null;
@@ -184,4 +208,3 @@ export class WebXRManager {
     }
   }
 }
-

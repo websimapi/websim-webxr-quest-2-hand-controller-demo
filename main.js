@@ -36,6 +36,10 @@ class App {
     this.webxrManager = new WebXRManager(this.renderer, this.scene);
 
     await this.sceneManager.init();
+    
+    // IMPORTANT: Connect scene manager to scene so WebXR can access it
+    this.scene.userData.sceneManager = this.sceneManager;
+    
     await this.webxrManager.init();
 
     // Create VR button
