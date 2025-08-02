@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { SceneManager } from './scene-setup.js';
 import { WebXRManager } from './webxr-utils.js';
 
@@ -71,4 +72,3 @@ class App {
 // Initialize the application
 const app = new App();
 app.init().catch(console.error);
-
